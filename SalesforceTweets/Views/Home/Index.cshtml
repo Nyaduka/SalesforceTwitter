@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<div class="">
+    <h1>Twitter Feed Reader</h1>
+ </div>
+<br />
+<div class="row">
+    <div class="col-md-4">
+        @*<label for="txtCount">*@<b>Latest :</b> @*</label>*@ <input type="text" maxlength="2" max="10" min="1" style="width: 2em" class="pull-left" value="10" placeholder="Number of" id="txtCount" onkeypress="return isNumber(event)" />
+        @*<label for="txtTweetFrom">*@<b>Tweets from : </b> @*</label>*@<input type="text" class="pull-right" value="Salesforce" placeholder="Tweet from" id="txtTweetFrom" size="15" />
+        <input type="button" class="pull-left" value="Submit" id="readtweets" onclick="readTweets()" />        
+        <b>Search : </b><input type="text" class="pull-right" onkeyup="SearchTweets()" placeholder="Search in tweets...." id="txtvalue" />
+    </div>
+</div>
+<hr />
+<div>
+    <div class="col-md-12" id="bindContent">
+    </div>
+</div>
+<div id="firstContent"></div>
+@section scripts{
+    <script>
+        // Call to the function when the page gets loaded
+        $(document).ready(function () {
+            getTweets();
+        });
+
+        // Reload the page after 60 secs.
+        setInterval(function () {
+            getTweets();
+        }, 60000);
+
+        // Call to function GetTweetsDetails by making an async http request
+        function getTweets() {
+            var count = $('#txtCount').val();
+            var name = $('#txtTweetFrom').val();
+            $.ajax({
+                type: "GET",
+                url: "home/GetTweetsDetails",
+                data: { 'count': count, 'name': name },
+                success: function (response) {
+                    BindResponse(response);
+                }
+            })
+        }
+
+        // Button click event to read the tweets
+        $('#readtweets').click(function () {
+            var count = $('#txtCount').val();
+            var name = $('#txtTweetFrom').val();
+            $.ajax({
+                url: "home/GetTweetsDetails",
+                data: { 'count': count, 'name': name },
+                type: "post",
+                cache: false,
+                success: function (response) {
+                    BindResponse(response);
+                }
+            })
+        })
+
+        // Bind the response to the page
+        function BindResponse(data) {
+            // Table header
+            var bindContent = "<table class='response table' id='contenttable'><thead><tr><td style='text-align: center; font-weight:bold'>User Name</td><td style='text-align: center; font-weight:bold'>User ScreenName</td><td style='text-align: center; font-weight:bold'>User ProfileImage</td><td style='text-align: center; font-weight:bold'>Tweet Content</td><td style='text-align: center; font-weight:bold'># of Retweets</td><td style='text-align: center; font-weight:bold'>Tweet Date</td></tr></thead>";
+            // Display the empty table if there is no data
+            if (data != undefined) {
+                data = JSON.parse(data); // parse the incoming data
+                for (var index = 0; index < data.length; index++) {
+                    bindContent += "<tbody><tr>";
+                    bindContent += "<td>" + data[index].user.name + "</td>";
+                    bindContent += "<td>" + data[index].user.screen_name + "</td>";
+                    bindContent += "<td><img src='" + data[index].user.profile_image_url + "'/></td>";
+                    bindContent += "<td id='tweet'>" + data[index].text; //"</td>";
+                    if (data[index].extended_entities != undefined) {
+                        bindContent += "<br><img style='height: 150px;width: 300px;' src='" + data[index].extended_entities.media[0].media_url + "'/></td>";
+                    }
+                    
+                    bindContent += "<td>" + data[index].retweet_count + "</td>";
+                    bindContent += "<td>" + data[index].created_at + "</td>";
+                }
+            }
+            bindContent += "</tr></tbody>";
+            bindContent += "</table>";
+            $("#bindContent").html(bindContent);           
+        }
+
+        // Function to search the key in the feed
+        function SearchTweets() {
+            var filter = $("#txtvalue").val().toUpperCase();
+            $("body").find("#contenttable > tbody >tr > #tweet ").each(function (index, item) {
+                if (item.innerHTML.toUpperCase().indexOf(filter) > -1) {
+                    item.parentElement.style.display = "";
+                } else {
+                    item.parentElement.style.display = "none";
+                }
+            })
+        }
+
+        // Event handler for key press event
+        function isNumber(event) {
+            var charCode = (event.which) ? event.which : event.keyCode
+            if (charCode > 31 && (charCode < 48 || charCode > 57))
+                return false;
+            return true;
+        }
+
+    </script>
+}
