@@ -279,6 +279,7 @@ table {
   }
   .table td,
   .table th {
+      border: 1px solid #ddd !important;
     background-color: #fff !important;
   }
   .btn > .caret,
