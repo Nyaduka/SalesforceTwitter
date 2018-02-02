@@ -1,6 +1,8 @@
 ﻿@{
     ViewBag.Title = "Home Page";
 }
+
+<script src="~/Scripts/moment.js"></script>
 <div class="">
     <h1>Twitter Feed Reader</h1>
  </div>
@@ -63,22 +65,24 @@
         // Bind the response to the page
         function BindResponse(data) {
             // Table header
-            var bindContent = "<table class='response table' id='contenttable'><thead><tr><td style='text-align: center; font-weight:bold'>User Name</td><td style='text-align: center; font-weight:bold'>User ScreenName</td><td style='text-align: center; font-weight:bold'>User ProfileImage</td><td style='text-align: center; font-weight:bold'>Tweet Content</td><td style='text-align: center; font-weight:bold'># of Retweets</td><td style='text-align: center; font-weight:bold'>Tweet Date</td></tr></thead>";
+            var bindContent = "<table class='response table' id='contenttable'><thead><tr><td style='text-align: center; font-weight:bold'>User&nbsp;Name</td><td style='text-align: center; font-weight:bold'>User&nbsp;ScreenName</td><td style='text-align: center; font-weight:bold'>User&nbsp;Profile&nbsp;Image</td><td style='text-align: center; font-weight:bold'>Tweet Content</td><td style='text-align: center; font-weight:bold'>#&nbsp;of&nbsp;Retweets</td><td style='text-align: center; font-weight:bold'>Tweet&nbsp;Date</td></tr></thead>";
+            
             // Display the empty table if there is no data
             if (data != undefined) {
                 data = JSON.parse(data); // parse the incoming data
-                for (var index = 0; index < data.length; index++) {
+                for (var i = 0; i < data.length; i++) {
                     bindContent += "<tbody><tr>";
-                    bindContent += "<td>" + data[index].user.name + "</td>";
-                    bindContent += "<td>" + data[index].user.screen_name + "</td>";
-                    bindContent += "<td><img src='" + data[index].user.profile_image_url + "'/></td>";
-                    bindContent += "<td id='tweet'>" + data[index].text; //"</td>";
-                    if (data[index].extended_entities != undefined) {
-                        bindContent += "<br><img style='height: 150px;width: 300px;' src='" + data[index].extended_entities.media[0].media_url + "'/></td>";
+                    bindContent += "<td style='text-align: center'>" + data[i].user.name + "</td>";
+                    bindContent += "<td style='text-align: center'>" + data[i].user.screen_name + "</td>";
+                    bindContent += "<td style='text-align: center'><img src='" + data[i].user.profile_image_url + "'/></td>";
+                    bindContent += "<td id='tweet'>" + data[i].text; //"</td>";
+                    if (data[i].extended_entities != undefined) {
+                        bindContent += "<br><img style='height: 150px;width: 300px;' src='" + data[i].extended_entities.media[0].media_url + "'/></td>";
                     }
                     
-                    bindContent += "<td>" + data[index].retweet_count + "</td>";
-                    bindContent += "<td>" + data[index].created_at + "</td>";
+                    bindContent += "<td style='text-align: center'>" + data[i].retweet_count + "</td>";
+                    bindContent += "<td>" + moment(data[i].created_at, 'ddd MMM DD HH:mm:ss Z YYYY').format('hh:mm A - ddd, MMM DD, YYYY ') + "</td>";
+                    //bindContent += "<td>" + data[i].created_at + "</td>";
                 }
             }
             bindContent += "</tr></tbody>";
